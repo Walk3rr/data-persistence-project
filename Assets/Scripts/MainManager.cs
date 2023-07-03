@@ -3,25 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
-
+    public Text RecordHolder;
+    public Text Name;
     public Text ScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
+    private int highscore;
     
     private bool m_GameOver = false;
 
     
     // Start is called before the first frame update
+    
     void Start()
     {
+        ApplyName();
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -40,8 +45,11 @@ public class MainManager : MonoBehaviour
 
     private void Update()
     {
+        LoadHighscoreInfo();
+        DisplayHighScoreAndName();
         if (!m_Started)
         {
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 m_Started = true;
@@ -68,9 +76,95 @@ public class MainManager : MonoBehaviour
         ScoreText.text = $"Score : {m_Points}";
     }
 
+    void ApplyName()
+    {
+        Name.text = "Name: " + MenuManager.Instance.PlayerName;
+    }
+
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
+
+
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+
+
+
+     [System.Serializable]
+    /*public class SaveThisFile
+    {
+        public string name;
+        public int score;
+    }
+
+    public void LoadHighscoreInfo()
+    {
+        string filename = Application.persistentDataPath + "/savesthisjson.json";
+        if(File.Exists(filename))
+        {
+            SaveThisFile HscoreNameReal = JsonUtility.FromJson<SaveThisFile>(File.ReadAllText(Application.persistentDataPath + "/savesthisjson.json"));
+            RecordHolder.text = "Best Score" + HscoreNameReal.name +" "+ HscoreNameReal.score;
+            highscore = HscoreNameReal.score;
+        }
+
+    }
+
+    public void DisplayHighScoreAndName()
+    {
+        if(m_Points > highscore)
+        {
+            SaveThisFile HscoreNameReal = new SaveThisFile();
+
+            HscoreNameReal.name = Name.text;
+            HscoreNameReal.score = m_Points;
+
+            string writable = JsonUtility.ToJson(HscoreNameReal);
+
+            File.WriteAllText(Application.persistentDataPath + "/savesthisjson.json",writable);
+        }
+    } */
+    public class SaveFile
+    {
+        public string name;
+        public int score;
+    }
+
+    public void LoadHighscoreInfo()
+    {
+        string filename = Application.persistentDataPath + "/savesjson.json";
+        if(File.Exists(filename))
+        {
+            SaveFile HscoreName = JsonUtility.FromJson<SaveFile>(File.ReadAllText(Application.persistentDataPath + "/savesjson.json"));
+            RecordHolder.text = "Best Score: " + HscoreName.name +" - "+ HscoreName.score;
+            highscore = HscoreName.score;
+        }
+
+    }
+
+    public void DisplayHighScoreAndName()
+    {
+        if(m_Points > highscore)
+        {
+            SaveFile HscoreName = new SaveFile();
+
+            HscoreName.name = Name.text;
+            HscoreName.score = m_Points;
+
+            string writable = JsonUtility.ToJson(HscoreName);
+
+            File.WriteAllText(Application.persistentDataPath + "/savesjson.json",writable);
+        }
+    }
+
+    
+
+
+
+    
 }
